@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innovation Summit Hackathon - Leaderboards</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container leaderboard-container">
+        <h1>Leaderboards</h1>
+        <p class="subtitle">View team rankings across all regions</p>
+
+        <div class="tabs">
+            <button class="tab active" onclick="loadLeaderboard('global')">🌍 Global</button>
+            <button class="tab" onclick="loadLeaderboard('EMEA')">EMEA</button>
+            <button class="tab" onclick="loadLeaderboard('AMRS')">AMRS</button>
+            <button class="tab" onclick="loadLeaderboard('APAC')">APAC</button>
+        </div>
+
+        <div id="message"></div>
+
+        <div id="leaderboard-content">
+            <table id="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Team Name</th>
+                        <th>Region</th>
+                        <th>Stages Completed</th>
+                        <th>Total Time</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 30px; color: #666;">
+                            Loading...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="links" style="margin-top: 20px;">
+            <a href="/register">← Back to Registration</a>
+        </div>
+    </div>
+
+    <script src="js/leaderboard.js"></script>
+</body>
+</html>

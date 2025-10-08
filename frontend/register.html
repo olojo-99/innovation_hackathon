@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innovation Summit Hackathon - Team Registration</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Innovation Summit Hackathon</h1>
+        <p class="subtitle">Create your team to get started</p>
+
+        <div id="message"></div>
+
+        <form id="teamForm">
+            <div class="form-group">
+                <label for="teamName">Team Name</label>
+                <input type="text" id="teamName" name="teamName" required
+                       placeholder="Enter your team name">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required
+                       placeholder="Create a password">
+            </div>
+
+            <div class="form-group">
+                <label for="region">Region</label>
+                <select id="region" name="region" required>
+                    <option value="">Select your region</option>
+                    <option value="EMEA">EMEA (Europe, Middle East, Africa)</option>
+                    <option value="AMRS">AMRS (Americas)</option>
+                    <option value="APAC">APAC (Asia-Pacific)</option>
+                </select>
+            </div>
+
+            <button type="submit">Create Team</button>
+        </form>
+
+        <div class="links">
+            <a href="/leaderboard">View Leaderboards</a>
+        </div>
+    </div>
+
+    <script src="js/home.js"></script>
+</body>
+</html>

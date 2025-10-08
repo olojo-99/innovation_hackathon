@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innovation Summit Hackathon - Challenge Result</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        .success { color: #28a745; }
+        .partial { color: #ffc107; }
+        .error { color: #dc3545; }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .message {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .download-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        .download-btn:hover {
+            transform: translateY(-2px);
+        }
+        .links {
+            margin-top: 30px;
+        }
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: 500;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% if all_correct %}
+        <div class="icon success">🎉</div>
+        {% if already_completed %}
+        <h1>Already Completed!</h1>
+        <p class="message">You've already completed Stage {{ stage }}</p>
+        <a href="{{ pdf_url }}" class="download-btn" download>📄 Re-download PDF</a>
+        {% else %}
+        <h1>All Correct!</h1>
+        <p class="message">Stage {{ stage }} Unlocked!</p>
+        <a href="{{ pdf_url }}" class="download-btn" download>📄 Download Next Stage PDF</a>
+        {% endif %}
+        {% else %}
+        <div class="icon partial">🤔</div>
+        <h1>Not Quite...</h1>
+        <p class="message">{{ correct_count }} out of 3 values are correct</p>
+        <p style="color: #999; margin-bottom: 20px;">Keep trying! Review your calculations and try again.</p>
+        {% endif %}
+
+        <div class="links">
+            <a href="/">← Back to Home</a>
+            <a href="/leaderboard">View Leaderboards</a>
+        </div>
+    </div>
+</body>
+</html>

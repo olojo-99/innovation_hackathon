@@ -1,0 +1,69 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /Resources 4 0 R /MediaBox [0 0 612 792] /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >>
+endobj
+5 0 obj
+<< /Length 450 >>
+stream
+BT
+/F1 24 Tf
+50 750 Td
+(Welcome to the Hackathon!) Tj
+0 -40 Td
+/F1 16 Tf
+(Stage 1: Dataset Analysis Challenge) Tj
+0 -60 Td
+/F1 14 Tf
+(Challenge Description:) Tj
+0 -30 Td
+/F1 12 Tf
+(Using the fraud transaction dataset provided:) Tj
+0 -25 Td
+(1. Problem 1 \(p1\): Count the total number of duplicate Transaction_IDs) Tj
+0 -20 Td
+(2. Problem 2 \(p2\): Calculate the percentage of fraudulent transactions) Tj
+0 -20 Td
+(   Round to nearest whole number \(e.g., 42 for 42%\)) Tj
+0 -20 Td
+(3. Problem 3 \(p3\): Find the count of transactions over $500) Tj
+0 -40 Td
+(Format your answers in this URL:) Tj
+0 -25 Td
+/F1 11 Tf
+(http://localhost:8000/ERFT_stage1_p1-{answer1}_p2-{answer2}_p3-{answer3}) Tj
+0 -35 Td
+/F1 12 Tf
+(Example: If your answers are 21, 69, and 420:) Tj
+0 -20 Td
+/F1 11 Tf
+(http://localhost:8000/ERFT_stage1_p1-21_p2-69_p3-420) Tj
+0 -35 Td
+/F1 12 Tf
+(Visit the URL in your browser and enter your team credentials!) Tj
+0 -25 Td
+(Good luck!) Tj
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f
+0000000009 00000 n
+0000000058 00000 n
+0000000115 00000 n
+0000000214 00000 n
+0000000304 00000 n
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+804
+%%EOF

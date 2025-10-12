@@ -12,7 +12,8 @@ class TeamResponse(BaseModel):
     region: str
     current_stage: int
     total_time: float
-    stage1_pdf_url: str = "/pdfs/stage1.pdf"  # Always provide stage 1 PDF on registration
+    challenge_open: bool = False  # Whether challenge has started for this region
+    start_time: Optional[str] = None  # UTC start time for display
 
 class ChallengeValidation(BaseModel):
     team_name: str
@@ -25,11 +26,11 @@ class ValidationResponse(BaseModel):
     pdf_url: Optional[str] = None
 
 class LeaderboardEntry(BaseModel):
-    rank: int
+    rank: str  # Can be number or "T" for tied
     team_name: str
     region: str
-    stages_completed: int
-    total_time: str
+    stages_unlocked: int  # Renamed from stages_completed
+    total_time: str  # Will show "-" for teams with 0 stages
 
 class Challenge(BaseModel):
     stage: int
@@ -40,13 +41,18 @@ class Challenge(BaseModel):
     correct_p3: str
     pdf_filename: str
 
+class FinalSubmission(BaseModel):
+    team_name: str
+    password: str
+    bitbucket_url: str
+
 # Database document schemas
 class TeamDocument(BaseModel):
     team_name: str
     password_hash: str
     region: str
     created_at: datetime
-    current_stage: int = 0
+    current_stage: int = 0  # Represents stages unlocked (0-5)
     stage_times: Dict[str, Optional[float]] = Field(default_factory=lambda: {
         "stage_1": None,
         "stage_2": None,
@@ -56,6 +62,7 @@ class TeamDocument(BaseModel):
     })
     total_time: float = 0.0
     last_submission_url: str = ""
+    bitbucket_url: Optional[str] = None  # Final submission URL
 
 class LeaderboardDocument(BaseModel):
     team_id: str

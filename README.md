@@ -101,21 +101,9 @@ The API will be available at `http://localhost:8000`
 
 ### 3. Frontend Setup
 
-Simply open the frontend in a web browser:
+The frontend is now served as static files directly from the FastAPI application. No separate frontend server is needed!
 
-```bash
-cd frontend
-
-# Option 1: Using Python's built-in server
-python -m http.server 3000
-
-# Option 2: Using Node.js http-server (if installed)
-npx http-server -p 3000
-
-# Option 3: Just open index.html in your browser
-```
-
-Access the frontend at `http://localhost:3000`
+Simply start the backend (step 2 above) and access the application at `http://localhost:8000`
 
 ### 4. Customize Challenge Answers
 

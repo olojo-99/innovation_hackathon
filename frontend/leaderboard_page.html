@@ -3,13 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Innovation Summit Hackathon - Leaderboards</title>
+    <title>Bank of America Innovation Summit - Leaderboards</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div class="container leaderboard-container">
-        <h1>Leaderboards</h1>
-        <p class="subtitle">View team rankings across all regions</p>
+        <!-- Header with branding -->
+        <div class="hackathon-badge">
+            <h2>🚀 Bank of America Innovation Summit Hackathon</h2>
+            <p>GitHub Copilot Development Challenge</p>
+        </div>
+
+        <h1>🏆 Leaderboards</h1>
+        <p class="subtitle">Challenge submission time rankings across all regions</p>
 
         <div class="tabs">
             <button class="tab active" onclick="loadLeaderboard('global')">🌍 Global</button>
@@ -27,22 +33,27 @@
                         <th>Rank</th>
                         <th>Team Name</th>
                         <th>Region</th>
-                        <th>Stages Completed</th>
+                        <th>Stages Unlocked</th>
                         <th>Total Time</th>
                     </tr>
                 </thead>
                 <tbody id="leaderboard-body">
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 30px; color: #666;">
-                            Loading...
+                        <td colspan="5" style="text-align: center; padding: 30px; color: #666;" class="loading">
+                            Loading leaderboard data...
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="links" style="margin-top: 20px;">
-            <a href="/register">← Back to Registration</a>
+        <div class="links" style="margin-top: 30px;">
+            <a href="/login">← Back to Login</a>
+            <a href="/register">Register Your Team</a>
+        </div>
+
+        <div class="footer-branding">
+            Bank of America Innovation Summit Hackathon 2025
         </div>
     </div>
 

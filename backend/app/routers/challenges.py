@@ -46,30 +46,37 @@ async def validate_submission(validation: ChallengeValidation):
     )
 
     # 6. If all correct AND first time completing this stage
-    if correct_count == 3 and team["current_stage"] < stage:
+    stages_unlocked = team.get("stages_unlocked", team.get("current_stage", 0))
+    if correct_count == 3 and stages_unlocked < stage:
         # Calculate time for this stage
-        completion_time = (datetime.utcnow() - team["created_at"]).total_seconds()
+        # Use timer_started_at if available, otherwise fall back to created_at
+        timer_start = team.get("timer_started_at") or team["created_at"]
+        completion_time = (datetime.utcnow() - timer_start).total_seconds()
         new_total_time = team["total_time"] + completion_time
+
+        # Calculate new stages unlocked: stages 1-4 count, stage 5 doesn't increment
+        new_stages_unlocked = min(stage, 4)  # Cap at 4 stages unlocked
 
         # Update team document
         await db.teams.update_one(
             {"_id": team["_id"]},
             {"$set": {
                 f"stage_times.stage_{stage}": completion_time,
-                "current_stage": stage,
-                "total_time": new_total_time
+                "stages_unlocked": new_stages_unlocked,
+                "total_time": new_total_time if stage <= 4 else team["total_time"]  # Don't update time for stage 5
             }}
         )
 
-        # Update leaderboard (persists to database)
-        await update_leaderboard(
-            db,
-            str(team["_id"]),
-            team["team_name"],
-            team["region"],
-            stage,
-            new_total_time
-        )
+        # Update leaderboard (only if stage 1-4, persists to database)
+        if stage <= 4:
+            await update_leaderboard(
+                db,
+                str(team["_id"]),
+                team["team_name"],
+                team["region"],
+                new_stages_unlocked,
+                new_total_time
+            )
 
         return ValidationResponse(
             correct_count=3,

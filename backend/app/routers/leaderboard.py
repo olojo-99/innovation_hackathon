@@ -16,19 +16,20 @@ def format_time(seconds: float) -> str:
 async def get_global_leaderboard():
     """
     Get global leaderboard (all teams across all regions).
-    Sorted by global_rank.
+    Teams with progress ranked first, then teams with 0 stages (tied, alphabetical).
     """
     db = await get_database()
 
-    teams = await db.leaderboard.find().sort("global_rank", 1).limit(100).to_list(100)
+    # Get all teams, sort by rank then alphabetically
+    teams = await db.leaderboard.find().sort([("global_rank", 1), ("team_name", 1)]).to_list(1000)
 
     return [
         LeaderboardEntry(
-            rank=team["global_rank"],
+            rank="T" if team["global_rank"] == 999 else str(team["global_rank"]),
             team_name=team["team_name"],
             region=team["region"],
-            stages_completed=team["current_stage"],
-            total_time=format_time(team["total_time"])
+            stages_unlocked=team.get("stages_unlocked", team.get("current_stage", 0)),
+            total_time="-" if team.get("stages_unlocked", team.get("current_stage", 0)) == 0 else format_time(team["total_time"])
         )
         for team in teams
     ]
@@ -37,7 +38,7 @@ async def get_global_leaderboard():
 async def get_regional_leaderboard(region: str):
     """
     Get regional leaderboard for a specific region (EMEA, AMRS, or APAC).
-    Sorted by regional_rank.
+    Teams with progress ranked first, then teams with 0 stages (tied, alphabetical).
     """
     # Validate region
     valid_regions = ["EMEA", "AMRS", "APAC"]
@@ -46,15 +47,15 @@ async def get_regional_leaderboard(region: str):
 
     db = await get_database()
 
-    teams = await db.leaderboard.find({"region": region}).sort("regional_rank", 1).to_list(100)
+    teams = await db.leaderboard.find({"region": region}).sort([("regional_rank", 1), ("team_name", 1)]).to_list(1000)
 
     return [
         LeaderboardEntry(
-            rank=team["regional_rank"],
+            rank="T" if team["regional_rank"] == 999 else str(team["regional_rank"]),
             team_name=team["team_name"],
             region=team["region"],
-            stages_completed=team["current_stage"],
-            total_time=format_time(team["total_time"])
+            stages_unlocked=team.get("stages_unlocked", team.get("current_stage", 0)),
+            total_time="-" if team.get("stages_unlocked", team.get("current_stage", 0)) == 0 else format_time(team["total_time"])
         )
         for team in teams
     ]

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank of America Innovation Summit - Sequential Error</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .error-container {
+            max-width: 650px;
+            background: white;
+            padding: 50px 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            position: relative;
+        }
+        .error-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #E31837 0%, #012169 50%, #8957E5 100%);
+            border-radius: 16px 16px 0 0;
+        }
+        .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            color: #ffc107;
+        }
+        h1 {
+            color: #012169;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+        .message {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            text-align: center;
+        }
+        .stage-info {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .stage-info p {
+            color: #856404;
+            margin-bottom: 8px;
+        }
+        .stage-info strong {
+            color: #856404;
+            font-size: 22px;
+            display: block;
+        }
+        .next-stage {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+        .next-stage p {
+            margin-bottom: 8px;
+        }
+        .next-stage strong {
+            color: #E31837;
+            font-size: 20px;
+            display: block;
+        }
+        .links {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .links a {
+            color: #E31837;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .links a:hover {
+            color: #012169;
+            text-decoration: underline;
+        }
+        .footer-branding {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #999;
+            font-size: 13px;
+        }
+        .footer-branding strong {
+            color: #012169;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="icon">🚫</div>
+        <h1>Sequential Progression Required</h1>
+        <p class="message">
+            Challenges must be completed in order. You cannot skip ahead to Stage {{ attempted_stage }}.
+        </p>
+        <div class="stage-info">
+            <p>Your current progress:</p>
+            <strong>{{ stages_unlocked }}/4 stages unlocked</strong>
+            <div class="next-stage">
+                <p>Next stage to complete:</p>
+                <strong>Stage {{ stages_unlocked + 1 }}</strong>
+            </div>
+        </div>
+        <p class="message">
+            Please complete Stage {{ stages_unlocked + 1 }} before attempting Stage {{ attempted_stage }}.
+        </p>
+        <div class="links">
+            <a href="/leaderboard">📊 View Leaderboards</a>
+            <a href="/login">← Back to Dashboard</a>
+        </div>
+
+        <div class="footer-branding">
+            Bank of America Innovation Summit Hackathon 2025
+        </div>
+    </div>
+</body>
+</html>

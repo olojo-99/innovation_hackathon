@@ -49,13 +49,13 @@ async function loadLeaderboard(region) {
                         <td><strong>${team.rank}</strong></td>
                         <td>${team.team_name}</td>
                         <td>${team.region}</td>
-                        <td>${team.stages_completed}/5</td>
+                        <td>${team.stages_unlocked}/4</td>
                         <td>${team.total_time}</td>
                     </tr>
                 `).join('');
             }
 
-            // Start auto-refresh (every 30 seconds)
+            // Start auto-refresh (every 1 minute)
             startAutoRefresh();
         } else {
             messageDiv.innerHTML = `
@@ -79,10 +79,10 @@ function startAutoRefresh() {
         clearInterval(refreshInterval);
     }
 
-    // Refresh every 30 seconds
+    // Refresh every 60 seconds (1 minute)
     refreshInterval = setInterval(() => {
         loadLeaderboard(currentRegion);
-    }, 30000);
+    }, 60000);
 }
 
 // Clean up interval when page is hidden

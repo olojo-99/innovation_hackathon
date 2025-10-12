@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bank of America Innovation Summit - Team Registration</title>
+    <title>Bank of America Innovation Summit - Team Login</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+
     <div class="container">
         <!-- Header with branding -->
         <div class="hackathon-badge">
@@ -14,41 +15,31 @@
             <p>GitHub Copilot Development Challenge</p>
         </div>
 
-        <h1>Team Registration</h1>
-        <p class="subtitle">Register your team to participate in the hackathon</p>
+        <h1>Team Login</h1>
+        <p class="subtitle">View your current progress and continue the challenges</p>
 
         <div id="message"></div>
 
-        <form id="teamForm">
+        <form id="loginForm">
             <div class="form-group">
                 <label for="teamName">Team Name</label>
                 <input type="text" id="teamName" name="teamName" required
                        placeholder="Enter your team name"
-                       autocomplete="off">
+                       autocomplete="username">
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required
-                       placeholder="Create a secure password"
-                       autocomplete="new-password">
+                       placeholder="Enter your password"
+                       autocomplete="current-password">
             </div>
 
-            <div class="form-group" id="regionGroup">
-                <label for="region">Region</label>
-                <select id="region" name="region" required>
-                    <option value="">Select your region</option>
-                    <option value="EMEA">🌍 EMEA (Europe, Middle East, Africa)</option>
-                    <option value="AMRS">🌎 AMRS (Americas)</option>
-                    <option value="APAC">🌏 APAC (Asia-Pacific)</option>
-                </select>
-            </div>
-
-            <button type="submit" class="action-btn">Register Team</button>
+            <button type="submit" class="action-btn">Login</button>
         </form>
 
         <div class="links">
-            <a href="/login">Already registered? Login here →</a>
+            <a href="/register">← Don't have an account? Register here</a>
             <a href="/leaderboard">📊 View Leaderboards</a>
         </div>
 
@@ -57,6 +48,6 @@
         </div>
     </div>
 
-    <script src="js/home.js"></script>
+    <script src="js/login.js"></script>
 </body>
 </html>

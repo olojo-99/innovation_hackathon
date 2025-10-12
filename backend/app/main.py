@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
@@ -8,6 +8,8 @@ from routers import teams, challenges, leaderboard
 from utils.leaderboard_updater import update_leaderboard
 from utils.url_validator import parse_challenge_url, count_correct_values
 from utils.auth import verify_password
+from utils.time_validator import is_challenge_open, format_utc_time
+from models import FinalSubmission
 from datetime import datetime
 
 app = FastAPI(title="Hackathon Platform API")
@@ -44,6 +46,12 @@ async def register_page():
     with open("../../frontend/register.html", "r") as f:
         return HTMLResponse(content=f.read())
 
+@app.get("/login", response_class=HTMLResponse)
+async def login_page():
+    """Serve login page"""
+    with open("../../frontend/login.html", "r") as f:
+        return HTMLResponse(content=f.read())
+
 @app.get("/leaderboard", response_class=HTMLResponse)
 async def leaderboard_page():
     """Serve leaderboard page"""
@@ -55,6 +63,7 @@ async def leaderboard_page():
 async def validate_challenge_url(request: Request, stage: int, p1: str, p2: str, p3: str, team: str = None, pwd: str = None):
     """
     Direct URL validation - users visit this URL to validate their challenge answers.
+    Enforces sequential stage progression and regional time gates.
     """
     db = await get_database()
     challenge_url = f"ERFT_stage{stage}_p1-{p1}_p2-{p2}_p3-{p3}"
@@ -63,7 +72,8 @@ async def validate_challenge_url(request: Request, stage: int, p1: str, p2: str,
     if not team or not pwd:
         return templates.TemplateResponse("auth_required.html", {
             "request": request,
-            "challenge_url": challenge_url
+            "challenge_url": challenge_url,
+            "stage": stage
         })
 
     # Authenticate team
@@ -72,13 +82,48 @@ async def validate_challenge_url(request: Request, stage: int, p1: str, p2: str,
         return templates.TemplateResponse("auth_required.html", {
             "request": request,
             "challenge_url": challenge_url,
+            "stage": stage,
             "error": "Invalid credentials"
+        })
+
+    # Check if challenge is open for this region
+    challenge_open, start_time = await is_challenge_open(team_doc["region"], db)
+    if not challenge_open:
+        return templates.TemplateResponse("challenge_not_open.html", {
+            "request": request,
+            "region": team_doc["region"],
+            "start_time": format_utc_time(start_time) if start_time else "TBD"
         })
 
     # Get challenge
     challenge = await db.challenges.find_one({"stage": stage})
     if not challenge:
         return HTMLResponse(content="<h1>Invalid challenge stage</h1>", status_code=404)
+
+    # Enforce sequential progression
+    # URL stage N unlocks stage N-1 (e.g., ERFT_stage2_... unlocks stage 1)
+    # So if stages_unlocked is 0, can only visit stage 2 URL (to unlock stage 1)
+    # If stages_unlocked is 1, can only visit stage 3 URL (to unlock stage 2), etc.
+    stages_unlocked = team_doc.get("stages_unlocked", team_doc.get("current_stage", 0))
+    expected_url_stage = stages_unlocked + 2  # If 0 stages unlocked, expect stage 2 URL
+
+    if stage != expected_url_stage:
+        if stage < expected_url_stage:
+            # Already completed this stage
+            return templates.TemplateResponse("validation_result.html", {
+                "request": request,
+                "all_correct": True,
+                "already_completed": True,
+                "stage": stage,
+                "pdf_url": f"/pdfs/{challenge['pdf_filename']}"
+            })
+        else:
+            # Trying to skip ahead
+            return templates.TemplateResponse("sequential_error.html", {
+                "request": request,
+                "stages_unlocked": stages_unlocked,
+                "attempted_stage": stage
+            })
 
     # Count correct values
     correct_count = count_correct_values(p1, p2, p3, challenge)
@@ -89,36 +134,52 @@ async def validate_challenge_url(request: Request, stage: int, p1: str, p2: str,
         {"$set": {"last_submission_url": challenge_url}}
     )
 
-    # If all correct AND first time completing this stage
-    if correct_count == 3 and team_doc["current_stage"] < stage:
-        completion_time = (datetime.utcnow() - team_doc["created_at"]).total_seconds()
+    # If all correct, unlock the stage
+    # URL stage N unlocks stage N-1
+    # e.g., ERFT_stage2_... unlocks stage 1, ERFT_stage3_... unlocks stage 2, etc.
+    if correct_count == 3:
+        # Use timer_started_at if available, otherwise fall back to created_at
+        timer_start = team_doc.get("timer_started_at") or team_doc["created_at"]
+        completion_time = (datetime.utcnow() - timer_start).total_seconds()
         new_total_time = team_doc["total_time"] + completion_time
+
+        # URL stage N unlocks stage N-1
+        # stage 2 URL → unlocks stage 1 (stages_unlocked = 1)
+        # stage 3 URL → unlocks stage 2 (stages_unlocked = 2)
+        # stage 4 URL → unlocks stage 3 (stages_unlocked = 3)
+        # stage 5 URL → unlocks stage 4 (stages_unlocked = 4)
+        stage_being_unlocked = stage - 1
+        new_stages_unlocked = stage_being_unlocked  # This will be 1-4
 
         # Update team document
         await db.teams.update_one(
             {"_id": team_doc["_id"]},
             {"$set": {
-                f"stage_times.stage_{stage}": completion_time,
-                "current_stage": stage,
-                "total_time": new_total_time
+                f"stage_times.stage_{stage_being_unlocked}": completion_time,
+                "stages_unlocked": new_stages_unlocked,
+                "total_time": new_total_time  # All stages 1-4 count toward total time
             }}
         )
 
-        # Update leaderboard
+        # Update leaderboard (all stages 1-4)
         await update_leaderboard(
             db,
             str(team_doc["_id"]),
             team_doc["team_name"],
             team_doc["region"],
-            stage,
+            new_stages_unlocked,
             new_total_time
         )
+
+        # Check if this unlocked the final stage (stage 4, after submitting stage 5 URL)
+        is_final_stage = (stage_being_unlocked == 4)
 
         return templates.TemplateResponse("validation_result.html", {
             "request": request,
             "all_correct": True,
             "stage": stage,
-            "pdf_url": f"/pdfs/{challenge['pdf_filename']}"
+            "pdf_url": f"/pdfs/{challenge['pdf_filename']}",
+            "is_final_stage": is_final_stage
         })
 
     # Return partial feedback
@@ -129,11 +190,48 @@ async def validate_challenge_url(request: Request, stage: int, p1: str, p2: str,
         "stage": stage
     })
 
+# Final Submission Routes
+@app.get("/submit", response_class=HTMLResponse)
+async def submit_final_page():
+    """Serve final submission page"""
+    with open("../../frontend/final_submission.html", "r") as f:
+        return HTMLResponse(content=f.read())
+
+@app.post("/api/submit")
+async def submit_final(submission: FinalSubmission):
+    """
+    Submit final BitBucket URL after completing stage 5.
+    """
+    db = await get_database()
+
+    # Authenticate team
+    team_doc = await db.teams.find_one({"team_name": submission.team_name})
+    if not team_doc or not verify_password(submission.password, team_doc["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    # Verify team has completed all stages (needs 4/4 stages unlocked and stage 5 completed)
+    stages_unlocked = team_doc.get("stages_unlocked", 0)
+
+    if stages_unlocked < 4:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Team must complete all stages before final submission. Current: {stages_unlocked}/4 unlocked."
+        )
+
+    # Update team with BitBucket URL
+    await db.teams.update_one(
+        {"_id": team_doc["_id"]},
+        {"$set": {"bitbucket_url": submission.bitbucket_url}}
+    )
+
+    return {"message": "Final submission successful!", "bitbucket_url": submission.bitbucket_url}
+
 @app.on_event("startup")
 async def startup_event():
     """
     Connect to MongoDB and rebuild leaderboard from teams collection.
     Ensures persistence after server restarts.
+    Now includes ALL teams (even those with 0 stages unlocked).
     """
     await connect_to_mongo()
 
@@ -143,8 +241,8 @@ async def startup_event():
     # Clear existing leaderboard
     await db.leaderboard.delete_many({})
 
-    # Rebuild from teams with progress
-    teams_list = await db.teams.find({"current_stage": {"$gt": 0}}).to_list(None)
+    # Rebuild from ALL teams (including those with 0 stages)
+    teams_list = await db.teams.find().to_list(None)
 
     for team in teams_list:
         await update_leaderboard(
@@ -152,7 +250,7 @@ async def startup_event():
             str(team["_id"]),
             team["team_name"],
             team["region"],
-            team["current_stage"],
+            team.get("stages_unlocked", team.get("current_stage", 0)),
             team["total_time"]
         )
 
@@ -162,11 +260,6 @@ async def startup_event():
 async def shutdown_event():
     """Close MongoDB connection on shutdown"""
     await close_mongo_connection()
-
-@app.get("/")
-async def root():
-    """Health check endpoint"""
-    return {"message": "Hackathon Platform API is running", "status": "healthy"}
 
 @app.get("/health")
 async def health():

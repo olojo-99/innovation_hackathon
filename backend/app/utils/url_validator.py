@@ -21,6 +21,9 @@ def count_correct_values(p1: str, p2: str, p3: str, challenge: dict) -> int:
     """
     Count how many submitted values match the correct answers.
     Returns count without revealing which ones are correct.
+
+    Note: The URL for stage N contains answers from stage N-1.
+    For example, ERFT_stage2_p1-1_p2-2_p3-3 validates against Stage 1 answers stored in the Stage 2 challenge document.
     """
     correct_count = sum([
         p1 == challenge["correct_p1"],

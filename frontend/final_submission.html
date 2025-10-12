@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bank of America Innovation Summit - Team Registration</title>
+    <title>Bank of America Innovation Summit - Final Submission</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -14,42 +14,45 @@
             <p>GitHub Copilot Development Challenge</p>
         </div>
 
-        <h1>Team Registration</h1>
-        <p class="subtitle">Register your team to participate in the hackathon</p>
+        <h1>🎯 Final Submission</h1>
+        <p class="subtitle">Submit your BitBucket repository URL to complete the challenge</p>
 
         <div id="message"></div>
 
-        <form id="teamForm">
+        <form id="submissionForm">
             <div class="form-group">
                 <label for="teamName">Team Name</label>
                 <input type="text" id="teamName" name="teamName" required
                        placeholder="Enter your team name"
-                       autocomplete="off">
+                       autocomplete="username">
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required
-                       placeholder="Create a secure password"
-                       autocomplete="new-password">
+                       placeholder="Enter your password"
+                       autocomplete="current-password">
             </div>
 
-            <div class="form-group" id="regionGroup">
-                <label for="region">Region</label>
-                <select id="region" name="region" required>
-                    <option value="">Select your region</option>
-                    <option value="EMEA">🌍 EMEA (Europe, Middle East, Africa)</option>
-                    <option value="AMRS">🌎 AMRS (Americas)</option>
-                    <option value="APAC">🌏 APAC (Asia-Pacific)</option>
-                </select>
+            <div class="form-group">
+                <label for="bitbucketUrl">BitBucket Repository URL</label>
+                <input
+                    type="url"
+                    id="bitbucketUrl"
+                    name="bitbucketUrl"
+                    placeholder="https://bitbucket.org/yourteam/repo"
+                    required>
+                <small style="color: #666; display: block; margin-top: 8px; font-size: 13px;">
+                    📝 Example: https://bitbucket.org/yourteam/innovation-summit
+                </small>
             </div>
 
-            <button type="submit" class="action-btn">Register Team</button>
+            <button type="submit" class="action-btn">Submit Final Deliverable</button>
         </form>
 
         <div class="links">
-            <a href="/login">Already registered? Login here →</a>
             <a href="/leaderboard">📊 View Leaderboards</a>
+            <a href="/login">← Back to Dashboard</a>
         </div>
 
         <div class="footer-branding">
@@ -57,6 +60,6 @@
         </div>
     </div>
 
-    <script src="js/home.js"></script>
+    <script src="js/final_submission.js"></script>
 </body>
 </html>

@@ -3,97 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Innovation Summit Hackathon - Challenge Result</title>
+    <title>Bank of America Innovation Summit - Challenge Result</title>
+    <link rel="stylesheet" href="/css/styles.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            min-height: 100vh;
         }
-        .container {
-            max-width: 600px;
+        .result-container {
+            max-width: 700px;
             background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 50px 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             text-align: center;
+            position: relative;
+        }
+        .result-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #E31837 0%, #012169 50%, #8957E5 100%);
+            border-radius: 16px 16px 0 0;
         }
         .icon {
             font-size: 80px;
             margin-bottom: 20px;
+            animation: bounceIn 0.6s ease-out;
         }
         .success { color: #28a745; }
         .partial { color: #ffc107; }
         .error { color: #dc3545; }
         h1 {
-            color: #333;
-            margin-bottom: 20px;
+            color: #012169;
+            margin-bottom: 15px;
+            font-size: 32px;
         }
         .message {
             font-size: 20px;
             color: #666;
             margin-bottom: 30px;
+            line-height: 1.6;
+            text-align: center;
         }
         .download-btn {
             display: inline-block;
-            padding: 15px 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #E31837 0%, #C41230 100%);
             color: white;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 18px;
-            font-weight: 600;
-            transition: transform 0.2s;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(227, 24, 55, 0.3);
         }
         .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(227, 24, 55, 0.4);
+        }
+        .final-stage-box {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f0f4ff 0%, #fff0f3 100%);
+            border-radius: 12px;
+            border-left: 4px solid #E31837;
+            text-align: center;
+        }
+        .final-stage-box h2 {
+            color: #012169;
+            margin-bottom: 12px;
+            font-size: 24px;
+        }
+        .final-stage-box p {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        .submit-btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 700;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        .submit-btn:hover {
+            background: #218838;
             transform: translateY(-2px);
         }
         .links {
             margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
         }
         .links a {
-            color: #667eea;
+            color: #E31837;
             text-decoration: none;
-            margin: 0 10px;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 15px;
         }
         .links a:hover {
+            color: #012169;
             text-decoration: underline;
+        }
+        .footer-branding {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #999;
+            font-size: 13px;
+        }
+        .footer-branding strong {
+            color: #012169;
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="result-container">
         {% if all_correct %}
         <div class="icon success">🎉</div>
         {% if already_completed %}
         <h1>Already Completed!</h1>
-        <p class="message">You've already completed Stage {{ stage }}</p>
+        <p class="message">You've already unlocked Stage {{ stage }}</p>
         <a href="{{ pdf_url }}" class="download-btn" download>📄 Re-download PDF</a>
         {% else %}
         <h1>All Correct!</h1>
-        <p class="message">Stage {{ stage }} Unlocked!</p>
-        <a href="{{ pdf_url }}" class="download-btn" download>📄 Download Next Stage PDF</a>
+        <p class="message">🏆 Congratulations! Stage {{ stage - 1 }} Complete!</p>
+        <a href="{{ pdf_url }}" class="download-btn" download>📄 Download Stage {{ stage }} PDF</a>
+        {% if is_final_stage %}
+        <div class="final-stage-box">
+            <h2>🏆 All Stages Complete!</h2>
+            <p>
+                Amazing work! You've completed all 4 stages.<br>
+                Review the Stage 5 PDF for accessibility and usability requirements. <br>
+                Then submit your BitBucket repository URL:
+            </p>
+            <a href="/submit" class="submit-btn">
+                📦 Submit Repository URL →
+            </a>
+        </div>
+        {% endif %}
         {% endif %}
         {% else %}
         <div class="icon partial">🤔</div>
         <h1>Not Quite...</h1>
         <p class="message">{{ correct_count }} out of 3 values are correct</p>
-        <p style="color: #999; margin-bottom: 20px;">Keep trying! Review your calculations and try again.</p>
+        <p style="color: #999; margin-bottom: 20px; font-size: 16px; text-align: center;">
+            Keep trying! Review your calculations and try again.
+        </p>
         {% endif %}
 
         <div class="links">
-            <a href="/">← Back to Home</a>
-            <a href="/leaderboard">View Leaderboards</a>
+            <a href="/login">← Back to Dashboard</a>
+            <a href="/leaderboard">📊 View Leaderboards</a>
+        </div>
+
+        <div class="footer-branding">
+            Bank of America Innovation Summit Hackathon 2025
         </div>
     </div>
 </body>

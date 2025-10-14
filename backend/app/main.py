@@ -100,33 +100,30 @@ async def validate_challenge_url(request: Request, stage: int, p1: str, p2: str,
     if not challenge:
         return HTMLResponse(content="<h1>Invalid challenge stage</h1>", status_code=404)
 
-    # Enforce sequential progression
-    # URL stage N unlocks stage N-1 (e.g., ERFT_stage2_... unlocks stage 1)
-    # So if stages_unlocked is 0, can only visit stage 2 URL (to unlock stage 1)
-    # If stages_unlocked is 1, can only visit stage 3 URL (to unlock stage 2), etc.
+    # Get current progress
     stages_unlocked = team_doc.get("stages_unlocked", team_doc.get("current_stage", 0))
-    expected_url_stage = stages_unlocked + 2  # If 0 stages unlocked, expect stage 2 URL
 
-    if stage != expected_url_stage:
-        if stage < expected_url_stage:
-            # Already completed this stage
-            return templates.TemplateResponse("validation_result.html", {
-                "request": request,
-                "all_correct": True,
-                "already_completed": True,
-                "stage": stage,
-                "pdf_url": f"/pdfs/{challenge['pdf_filename']}"
-            })
-        else:
-            # Trying to skip ahead
-            return templates.TemplateResponse("sequential_error.html", {
-                "request": request,
-                "stages_unlocked": stages_unlocked,
-                "attempted_stage": stage
-            })
-
-    # Count correct values
+    # Count correct values first (needed for all paths)
     correct_count = count_correct_values(p1, p2, p3, challenge)
+
+    # Determine what stage would be unlocked by this URL
+    # Stage 2 URL unlocks stage 1, Stage 3 URL unlocks stage 2, etc.
+    stage_being_unlocked = stage - 1
+
+    # Sequential progression check:
+    # - If stages_unlocked = 0, they can unlock stage 1 (visit stage 2 URL)
+    # - If stages_unlocked = 1, they can unlock stage 2 (visit stage 3 URL)
+    # - etc.
+    # So: stage_being_unlocked should equal (stages_unlocked + 1) for next stage
+
+    # Check if trying to skip ahead
+    if stage_being_unlocked > stages_unlocked + 1:
+        # Trying to unlock a stage beyond the next one
+        return templates.TemplateResponse("sequential_error.html", {
+            "request": request,
+            "stages_unlocked": stages_unlocked,
+            "attempted_stage": stage
+        })
 
     # Update latest submission URL
     await db.teams.update_one(
@@ -134,55 +131,50 @@ async def validate_challenge_url(request: Request, stage: int, p1: str, p2: str,
         {"$set": {"last_submission_url": challenge_url}}
     )
 
-    # If all correct, unlock the stage
-    # URL stage N unlocks stage N-1
-    # e.g., ERFT_stage2_... unlocks stage 1, ERFT_stage3_... unlocks stage 2, etc.
+    # Handle correct values - show same UI for first-time and revisits
     if correct_count == 3:
-        # Use timer_started_at if available, otherwise fall back to created_at
-        timer_start = team_doc.get("timer_started_at") or team_doc["created_at"]
-        completion_time = (datetime.utcnow() - timer_start).total_seconds()
-        new_total_time = team_doc["total_time"] + completion_time
+        is_first_time = (stage_being_unlocked == stages_unlocked + 1)
 
-        # URL stage N unlocks stage N-1
-        # stage 2 URL → unlocks stage 1 (stages_unlocked = 1)
-        # stage 3 URL → unlocks stage 2 (stages_unlocked = 2)
-        # stage 4 URL → unlocks stage 3 (stages_unlocked = 3)
-        # stage 5 URL → unlocks stage 4 (stages_unlocked = 4)
-        stage_being_unlocked = stage - 1
-        new_stages_unlocked = stage_being_unlocked  # This will be 1-4
+        # Only update DB on first-time completion
+        if is_first_time:
+            # Use timer_started_at if available, otherwise fall back to created_at
+            timer_start = team_doc.get("timer_started_at") or team_doc["created_at"]
+            completion_time = (datetime.utcnow() - timer_start).total_seconds()
+            new_total_time = team_doc["total_time"] + completion_time
 
-        # Update team document
-        await db.teams.update_one(
-            {"_id": team_doc["_id"]},
-            {"$set": {
-                f"stage_times.stage_{stage_being_unlocked}": completion_time,
-                "stages_unlocked": new_stages_unlocked,
-                "total_time": new_total_time  # All stages 1-4 count toward total time
-            }}
-        )
+            # Update team document
+            await db.teams.update_one(
+                {"_id": team_doc["_id"]},
+                {"$set": {
+                    f"stage_times.stage_{stage_being_unlocked}": completion_time,
+                    "stages_unlocked": stage_being_unlocked,
+                    "total_time": new_total_time
+                }}
+            )
 
-        # Update leaderboard (all stages 1-4)
-        await update_leaderboard(
-            db,
-            str(team_doc["_id"]),
-            team_doc["team_name"],
-            team_doc["region"],
-            new_stages_unlocked,
-            new_total_time
-        )
+            # Update leaderboard
+            await update_leaderboard(
+                db,
+                str(team_doc["_id"]),
+                team_doc["team_name"],
+                team_doc["region"],
+                stage_being_unlocked,
+                new_total_time
+            )
 
-        # Check if this unlocked the final stage (stage 4, after submitting stage 5 URL)
+        # Show consistent UI for both first-time and revisits
         is_final_stage = (stage_being_unlocked == 4)
 
         return templates.TemplateResponse("validation_result.html", {
             "request": request,
             "all_correct": True,
             "stage": stage,
+            "stage_unlocked": stage_being_unlocked,
             "pdf_url": f"/pdfs/{challenge['pdf_filename']}",
             "is_final_stage": is_final_stage
         })
 
-    # Return partial feedback
+    # Return partial feedback for incorrect values
     return templates.TemplateResponse("validation_result.html", {
         "request": request,
         "all_correct": False,

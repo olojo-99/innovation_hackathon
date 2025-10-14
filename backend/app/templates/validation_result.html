@@ -139,30 +139,31 @@
 <body>
     <div class="result-container">
         {% if all_correct %}
-        <div class="icon success">🎉</div>
-        {% if already_completed %}
-        <h1>Already Completed!</h1>
-        <p class="message">You've already unlocked Stage {{ stage }}</p>
-        <a href="{{ pdf_url }}" class="download-btn" download>📄 Re-download PDF</a>
-        {% else %}
+        <!-- Correct values - unified UI for first-time and revisits -->
+        <div class="icon success">🎊</div>
         <h1>All Correct!</h1>
-        <p class="message">🏆 Congratulations! Stage {{ stage - 1 }} Complete!</p>
+        <p class="message">✅ You have the correct values for Stage {{ stage_unlocked }}.</p>
+        <p class="message" style="font-size: 18px; color: #28a745;">
+            <strong>Stage {{ stage }} PDF Available</strong>
+        </p>
         <a href="{{ pdf_url }}" class="download-btn" download>📄 Download Stage {{ stage }} PDF</a>
+        <p style="color: #666; margin-top: 20px; font-size: 14px;">
+            Download the PDF above to continue with Stage {{ stage }}.
+        </p>
         {% if is_final_stage %}
         <div class="final-stage-box">
-            <h2>🏆 All Stages Complete!</h2>
+            <h2>🏆 All 4 Stages Complete!</h2>
             <p>
                 Amazing work! You've completed all 4 stages.<br>
-                Review the Stage 5 PDF for accessibility and usability requirements. <br>
-                Then submit your BitBucket repository URL:
+                Review the Stage 5 PDF for accessibility requirements, then submit your BitBucket repository URL:
             </p>
             <a href="/submit" class="submit-btn">
                 📦 Submit Repository URL →
             </a>
         </div>
         {% endif %}
-        {% endif %}
         {% else %}
+        <!-- Incorrect values -->
         <div class="icon partial">🤔</div>
         <h1>Not Quite...</h1>
         <p class="message">{{ correct_count }} out of 3 values are correct</p>

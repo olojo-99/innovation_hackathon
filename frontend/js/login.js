@@ -43,16 +43,55 @@ async function handleLogin() {
             message += `📊 <strong>Your Progress:</strong> ${data.current_stage}/4 stages unlocked<br><br>`;
 
             if (data.challenge_open) {
-                // Challenge is open - show download link with timer start
-                message += `
-                    📄 <strong>The challenge is now open!</strong><br>
-                    Download Stage 1 PDF to begin:<br>
-                    <a href="#" onclick="downloadStage1PDF('${teamName}', '${password}'); return false;" style="color: #155724; font-weight: 600; text-decoration: underline;">
-                        Click here to download Stage 1 requirements
-                    </a><br><br>
-                    <small style="color: #666;">⏱️ Your timer will start when you download the PDF</small><br><br>
-                    Continue solving the challenges!
-                `;
+                // Determine which stage PDF to show based on current_stage (stages_unlocked)
+                // current_stage = stages_unlocked (0-4)
+                // Stage PDFs available: stage1, stage2, stage3, stage4, stage5
+
+                // Challenge is open - show download link for appropriate stage
+                if (data.current_stage === 0) {
+                    // Haven't started yet - show Stage 1 PDF download
+                    message += `
+                        📄 <strong>The challenge is now open!</strong><br>
+                        Download Stage 1 PDF to begin:<br>
+                        <a href="#" onclick="downloadStagePDF(1, '${teamName}', '${password}'); return false;" style="color: #155724; font-weight: 600; text-decoration: underline;">
+                            Click here to download Stage 1 requirements
+                        </a><br><br>
+                        <small style="color: #666;">⏱️ Your timer will start when you download the PDF</small><br>
+                    `;
+                } else if (data.current_stage >= 4) {
+                    // Completed all 4 stages - show Stage 5 PDF and final submission
+                    message += `
+                        🎉 <strong>Congratulations! All 4 stages completed!</strong><br><br>
+                        Download Stage 5 PDF for accessibility requirements:<br>
+                        <a href="${API_URL}/pdfs/stage5.pdf" target="_blank" style="color: #155724; font-weight: 600; text-decoration: underline;">
+                            Click here to download Stage 5 PDF
+                        </a><br><br>
+                        After reviewing usability and accessibility requirements:<br>
+                        <a href="/submit" style="color: #E31837; font-weight: 600; text-decoration: underline;">
+                            📦 Submit your BitBucket repository URL
+                        </a><br>
+                    `;
+                } else {
+                    // In progress (1-3 stages unlocked)
+                    // If stages_unlocked = 1, they have Stage 2 PDF (next is Stage 3)
+                    // If stages_unlocked = 2, they have Stage 3 PDF (next is Stage 4)
+                    // If stages_unlocked = 3, they have Stage 4 PDF (next is Stage 5)
+                    const currentPDFStage = data.current_stage + 1; // PDF they currently have access to
+                    const nextURLStage = data.current_stage + 2; // Next URL stage to submit
+
+                    message += `
+                        🚀 <strong>Keep going!</strong><br>
+                        You've unlocked ${data.current_stage}/4 stages.<br><br>
+                        📄 <strong>Current Challenge:</strong> Stage ${currentPDFStage}<br>
+                        Download the PDF to continue:<br>
+                        <a href="${API_URL}/pdfs/stage${currentPDFStage}.pdf" target="_blank" style="color: #155724; font-weight: 600; text-decoration: underline;">
+                            Click here to download Stage ${currentPDFStage} requirements
+                        </a><br><br>
+                        <small style="color: #666;">
+                            Complete Stage ${currentPDFStage} problems, then submit ERFT_stage${nextURLStage} URL to unlock the next stage.
+                        </small><br>
+                    `;
+                }
             } else {
                 // Challenge not yet open - show start time
                 message += `
@@ -82,27 +121,32 @@ async function handleLogin() {
     }
 }
 
-// Download Stage 1 PDF and start timer
-async function downloadStage1PDF(teamName, password) {
+// Download Stage PDF and start timer (only for Stage 1)
+async function downloadStagePDF(stage, teamName, password) {
     try {
-        // Start the timer first
-        const response = await fetch(`${API_URL}/teams/start-timer`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ team_name: teamName, password: password, region: "EMEA" })
-        });
+        // Only start timer for Stage 1 (first PDF download)
+        if (stage === 1) {
+            const response = await fetch(`${API_URL}/teams/start-timer`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ team_name: teamName, password: password, region: "EMEA" })
+            });
 
-        if (response.ok) {
-            // Timer started successfully, now download the PDF
-            window.open(`${API_URL}/pdfs/stage1.pdf`, '_blank');
+            if (response.ok) {
+                // Timer started successfully, now download the PDF
+                window.open(`${API_URL}/pdfs/stage${stage}.pdf`, '_blank');
+            } else {
+                alert('Failed to start timer. Please try again.');
+            }
         } else {
-            alert('Failed to start timer. Please try again.');
+            // For other stages, just download the PDF
+            window.open(`${API_URL}/pdfs/stage${stage}.pdf`, '_blank');
         }
     } catch (error) {
-        console.error('Error starting timer:', error);
-        // Still allow download even if timer start fails
-        window.open(`${API_URL}/pdfs/stage1.pdf`, '_blank');
+        console.error('Error:', error);
+        // Still allow download even if there's an error
+        window.open(`${API_URL}/pdfs/stage${stage}.pdf`, '_blank');
     }
 }

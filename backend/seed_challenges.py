@@ -30,7 +30,7 @@ async def seed_database():
     # Note: Answers from Stage N are used to build the URL for Stage N+1
     regional_config = {
         "regional_start_times": {
-            "EMEA": "2025-10-15T08:00:00Z",    # 8:00 AM UTC
+            "EMEA": "2025-10-10T08:00:00Z",    # 8:00 AM UTC
             "AMRS": "2025-10-15T14:00:00Z",    # 2:00 PM UTC (9:00 AM EST)
             "APAC": "2025-10-15T00:00:00Z"     # 12:00 AM UTC (8:00 AM SGT)
         }
@@ -59,45 +59,45 @@ async def seed_database():
             "stage": 1,
             "type": "dataset",
             "title": "Dataset Analysis - Fraud Detection Basics",
-            "correct_p1": "1",       # Stage 1 produces these values (1,2,3)
-            "correct_p2": "2",
-            "correct_p3": "3",
+            "correct_p1": None,       # Given by default
+            "correct_p2": None,
+            "correct_p3": None,
             "pdf_filename": "stage1.pdf"  # Given when team logs in (initial PDF)
         },
         {
             "stage": 2,
             "type": "website",
             "title": "Website Feature - Dashboard Enhancement",
-            "correct_p1": "4",
-            "correct_p2": "5",
-            "correct_p3": "6",
+            "correct_p1": "1",       # ERFT_stage2_p1-1_p2-2_p3-3 (from Stage 1)
+            "correct_p2": "2",
+            "correct_p3": "3",
             "pdf_filename": "stage2.pdf"  # Given after submitting correct Stage 2 URL
         },
         {
             "stage": 3,
             "type": "dataset",
             "title": "Dataset Analysis - Advanced Patterns",
-            "correct_p1": "7",       # ERFT_stage3_p1-4_p2-5_p3-6 validates against Stage 2 answers
-            "correct_p2": "8",
-            "correct_p3": "9",
+            "correct_p1": "4",       # ERFT_stage3_p1-4_p2-5_p3-6 (from Stage 2)
+            "correct_p2": "5",
+            "correct_p3": "6",
             "pdf_filename": "stage3.pdf"  # Given after submitting correct Stage 3 URL
         },
         {
             "stage": 4,
             "type": "website",
             "title": "Website Feature - Fraud Detection Module",
-            "correct_p1": "10",       # ERFT_stage4_p1-7_p2-8_p3-9 validates against Stage 3 answers
-            "correct_p2": "11",
-            "correct_p3": "12",
+            "correct_p1": "7",       # ERFT_stage4_p1-7_p2-8_p3-9 (from Stage 3)
+            "correct_p2": "8",
+            "correct_p3": "9",
             "pdf_filename": "stage4.pdf"  # Given after submitting correct Stage 4 URL
         },
         {
             "stage": 5,
             "type": "accessibility",
             "title": "Accessibility & Usability - Final Round",
-            "correct_p1": None,
-            "correct_p2": None,
-            "correct_p3": None,
+            "correct_p1": "10",      # ERFT_stage5_p1-10_p2-11_p3-12 (from Stage 4)
+            "correct_p2": "11",
+            "correct_p3": "12",
             "pdf_filename": "stage5.pdf"  # Given after submitting correct Stage 5 URL
         }
     ]

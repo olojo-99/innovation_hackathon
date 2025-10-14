@@ -48,7 +48,7 @@ async function handleRegister() {
                         Click here to download Stage 1 requirements
                     </a><br><br>
                     <small style="color: #666;">⏱️ Your timer will start when you download the PDF</small><br><br>
-                    Read the PDF and start solving the challenge!
+                    Read the PDF and start solving the challenge!<br><br>
                 `;
             } else {
                 // Challenge not yet open - show start time

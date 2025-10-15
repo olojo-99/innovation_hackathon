@@ -26,6 +26,7 @@ app.add_middleware(
 
 # Mount static files
 app.mount("/pdfs", StaticFiles(directory="../../pdfs"), name="pdfs")
+app.mount("/data", StaticFiles(directory="../../"), name="data")  # For CSV file
 app.mount("/css", StaticFiles(directory="../../frontend/css"), name="css")
 app.mount("/js", StaticFiles(directory="../../frontend/js"), name="js")
 

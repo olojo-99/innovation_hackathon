@@ -40,14 +40,17 @@ async function handleRegister() {
             let message = `✅ Team "${data.team_name}" registered successfully for ${data.region}!<br><br>`;
 
             if (data.challenge_open) {
-                // Challenge is open - show download link with timer start
+                // Challenge is open - show download links for PDF and CSV with timer start
                 message += `
                     📄 <strong>The challenge is now open!</strong><br>
-                    Download Stage 1 PDF to begin:<br>
-                    <a href="#" onclick="downloadStage1PDF('${teamName}', '${password}'); return false;" style="color: #155724; font-weight: 600; text-decoration: underline;">
-                        Click here to download Stage 1 requirements
+                    Download Stage 1 materials to begin:<br><br>
+                    <a href="#" onclick="downloadStageFile('pdf', 1, '${teamName}', '${password}'); return false;" style="color: #155724; font-weight: 600; text-decoration: underline;">
+                        📄 Click here to download Stage 1 requirements (PDF)
                     </a><br><br>
-                    <small style="color: #666;">⏱️ Your timer will start when you download the PDF</small><br><br>
+                    <a href="#" onclick="downloadStageFile('csv', 1, '${teamName}', '${password}'); return false;" style="color: #155724; font-weight: 600; text-decoration: underline;">
+                        📊 Click here to download Dataset (CSV)
+                    </a><br><br>
+                    <small style="color: #666;">⏱️ Your timer will start when you download either file</small><br><br>
                     Read the PDF and start solving the challenge!<br><br>
                 `;
             } else {
@@ -80,28 +83,41 @@ async function handleRegister() {
     }
 }
 
-// Download Stage 1 PDF and start timer
-async function downloadStage1PDF(teamName, password) {
+// Download Stage file (PDF or CSV) and start timer (only for Stage 1)
+async function downloadStageFile(fileType, stage, teamName, password) {
     try {
-        // Start the timer first
-        const response = await fetch(`${API_URL}/teams/start-timer`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ team_name: teamName, password: password, region: "EMEA" })
-        });
+        // Only start timer for Stage 1 materials (first download)
+        if (stage === 1) {
+            const response = await fetch(`${API_URL}/teams/start-timer`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ team_name: teamName, password: password, region: "EMEA" })
+            });
 
-        if (response.ok) {
-            // Timer started successfully, now download the PDF
-            window.open(`${API_URL}/pdfs/stage1.pdf`, '_blank');
+            if (response.ok) {
+                // Timer started successfully, now download the file
+                if (fileType === 'pdf') {
+                    window.open(`${API_URL}/pdfs/stage${stage}.pdf`, '_blank');
+                } else if (fileType === 'csv') {
+                    window.open(`${API_URL}/data/hackathon_fraud_payment.csv`, '_blank');
+                }
+            } else {
+                alert('Failed to start timer. Please try again.');
+            }
         } else {
-            alert('Failed to start timer. Please try again.');
+            // For other stages, just download the PDF
+            window.open(`${API_URL}/pdfs/stage${stage}.pdf`, '_blank');
         }
     } catch (error) {
-        console.error('Error starting timer:', error);
-        // Still allow download even if timer start fails
-        window.open(`${API_URL}/pdfs/stage1.pdf`, '_blank');
+        console.error('Error:', error);
+        // Still allow download even if there's an error
+        if (fileType === 'pdf') {
+            window.open(`${API_URL}/pdfs/stage${stage}.pdf`, '_blank');
+        } else if (fileType === 'csv') {
+            window.open(`${API_URL}/data/hackathon_fraud_payment.csv`, '_blank');
+        }
     }
 }
 

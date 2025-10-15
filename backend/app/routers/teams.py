@@ -103,8 +103,9 @@ async def login_team(team: TeamCreate):
 @router.post("/start-timer")
 async def start_timer(team: TeamCreate):
     """
-    Start the timer for a team when they access the Stage 1 PDF for the first time.
-    This should be called when the user clicks to download/view the Stage 1 PDF.
+    Start the timer for a team when they access Stage 1 materials (PDF or CSV) for the first time.
+    This should be called when the user clicks to download/view the Stage 1 PDF or CSV dataset.
+    Timer only starts once - subsequent downloads don't reset it.
     """
     db = await get_database()
 

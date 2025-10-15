@@ -49,14 +49,17 @@ async function handleLogin() {
 
                 // Challenge is open - show download link for appropriate stage
                 if (data.current_stage === 0) {
-                    // Haven't started yet - show Stage 1 PDF download
+                    // Haven't started yet - show Stage 1 PDF and CSV download
                     message += `
                         📄 <strong>The challenge is now open!</strong><br>
-                        Download Stage 1 PDF to begin:<br>
-                        <a href="#" onclick="downloadStagePDF(1, '${teamName}', '${password}'); return false;" style="color: #155724; font-weight: 600; text-decoration: underline;">
-                            Click here to download Stage 1 requirements
+                        Download Stage 1 materials to begin:<br><br>
+                        <a href="#" onclick="downloadStageFile('pdf', 1, '${teamName}', '${password}'); return false;" style="color: #155724; font-weight: 600; text-decoration: underline;">
+                            📄 Click here to download Stage 1 requirements (PDF)
                         </a><br><br>
-                        <small style="color: #666;">⏱️ Your timer will start when you download the PDF</small><br>
+                        <a href="#" onclick="downloadStageFile('csv', 1, '${teamName}', '${password}'); return false;" style="color: #155724; font-weight: 600; text-decoration: underline;">
+                            📊 Click here to download Dataset (CSV)
+                        </a><br><br>
+                        <small style="color: #666;">⏱️ Your timer will start when you download either file</small><br>
                     `;
                 } else if (data.current_stage >= 4) {
                     // Completed all 4 stages - show Stage 5 PDF and final submission
@@ -121,10 +124,10 @@ async function handleLogin() {
     }
 }
 
-// Download Stage PDF and start timer (only for Stage 1)
-async function downloadStagePDF(stage, teamName, password) {
+// Download Stage file (PDF or CSV) and start timer (only for Stage 1)
+async function downloadStageFile(fileType, stage, teamName, password) {
     try {
-        // Only start timer for Stage 1 (first PDF download)
+        // Only start timer for Stage 1 materials (first download)
         if (stage === 1) {
             const response = await fetch(`${API_URL}/teams/start-timer`, {
                 method: 'POST',
@@ -135,8 +138,12 @@ async function downloadStagePDF(stage, teamName, password) {
             });
 
             if (response.ok) {
-                // Timer started successfully, now download the PDF
-                window.open(`${API_URL}/pdfs/stage${stage}.pdf`, '_blank');
+                // Timer started successfully, now download the file
+                if (fileType === 'pdf') {
+                    window.open(`${API_URL}/pdfs/stage${stage}.pdf`, '_blank');
+                } else if (fileType === 'csv') {
+                    window.open(`${API_URL}/data/hackathon_fraud_payment.csv`, '_blank');
+                }
             } else {
                 alert('Failed to start timer. Please try again.');
             }
@@ -147,6 +154,10 @@ async function downloadStagePDF(stage, teamName, password) {
     } catch (error) {
         console.error('Error:', error);
         // Still allow download even if there's an error
-        window.open(`${API_URL}/pdfs/stage${stage}.pdf`, '_blank');
+        if (fileType === 'pdf') {
+            window.open(`${API_URL}/pdfs/stage${stage}.pdf`, '_blank');
+        } else if (fileType === 'csv') {
+            window.open(`${API_URL}/data/hackathon_fraud_payment.csv`, '_blank');
+        }
     }
 }
